@@ -1,0 +1,26 @@
+demo_dataset = [
+    # 1
+    ("The 2004 Formula 3 Sudamericana season was the 15th Formula 3 Sudamericana season", "SUPPORTS"),
+    ("The 2004 Formula 3 Sudamericana season was the 20th season", "REFUTES"),
+    ("The 2004 Formula 3 Sudamericana season was a football league season", "NOT ENOUGH INFO"),
+
+    # 2
+    ("The 2014 FIBA 3x3 World Championships was an international basketball event", "SUPPORTS"),
+    ("The 2014 FIBA 3x3 World Championships was a tennis tournament", "REFUTES"),
+    ("The 2014 FIBA 3x3 World Championships was a cricket event in India", "NOT ENOUGH INFO"),
+
+    # 3
+    ("The 1926 Washington Huskies football team represented the University of Washington", "SUPPORTS"),
+    ("The 1926 Washington Huskies football team represented Harvard University", "REFUTES"),
+    ("The 1926 Washington Huskies football team played in the NBA", "NOT ENOUGH INFO"),
+
+    # 4
+    ("The 2014–15 Louisiana Tech Bulldogs basketball team represented Louisiana Tech University", "SUPPORTS"),
+    ("The 2014–15 Louisiana Tech Bulldogs basketball team represented Stanford University", "REFUTES"),
+    ("The 2014–15 Louisiana Tech Bulldogs team played football in Europe", "NOT ENOUGH INFO"),
+
+    # 5
+    ("The 2014 Teen Choice Awards was broadcast on Fox", "SUPPORTS"),
+    ("The 2014 Teen Choice Awards was broadcast on MTV", "REFUTES"),
+    ("The 2014 Teen Choice Awards was a cricket tournament", "NOT ENOUGH INFO")
+]
