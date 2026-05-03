@@ -41,7 +41,8 @@ def load_all_wiki(folder_path, max_files=None):
                             continue
 
                         idx = int(parts[0])
-                        text = parts[1].strip()
+                        #text = parts[1].strip()
+                        text = parts[1].strip().lower()
 
                         # ⚡ filter weak/noisy sentences
                         if len(text.split()) < 4:

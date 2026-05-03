@@ -2,6 +2,7 @@ import streamlit as st
 from wiki_loader import load_all_wiki
 from predict import predict_with_evidence_list
 from retrieval import Retriever
+from llm_predict import predict_with_llm
 
 st.set_page_config(
     page_title="Fact Verification System",
@@ -61,7 +62,9 @@ if verify:
                     }
                 }
             else:
-                result = predict_with_evidence_list(claim, evidence_texts)
+                #result = predict_with_evidence_list(claim, evidence_texts)
+
+                result = predict_with_llm(claim, evidence_texts)
 
         st.divider()
 
@@ -103,16 +106,40 @@ if verify:
         # --------------------------
         # SUMMARY
         # --------------------------
+        # st.divider()
+
+        # st.subheader("🧾 Summary")
+        # st.write("DEBUG Evidence:", evidence)
+
+        # st.markdown(f"""
+        # | Field | Value |
+        # |---|---|
+        # | Claim | {claim} |
+        # | Verdict | {label} |
+        # | SUPPORTS | {scores.get('SUPPORTS', 0):.2f}% |
+        # | REFUTES | {scores.get('REFUTES', 0):.2f}% |
+        # | NEI | {scores.get('NOT ENOUGH INFO', 0):.2f}% |
+        # """)
+
+        # --------------------------
+        # SUMMARY
+        # --------------------------
         st.divider()
 
         st.subheader("🧾 Summary")
+
+        # LLM-generated natural language summary
+        summary_text = result.get("summary", "")
+        if summary_text:
+            st.info(summary_text)
 
         st.markdown(f"""
         | Field | Value |
         |---|---|
         | Claim | {claim} |
-        | Verdict | {label} |
+        | Verdict | **{label}** |
         | SUPPORTS | {scores.get('SUPPORTS', 0):.2f}% |
         | REFUTES | {scores.get('REFUTES', 0):.2f}% |
         | NEI | {scores.get('NOT ENOUGH INFO', 0):.2f}% |
+        | Evidence used | {len(evidence)} sentences |
         """)
