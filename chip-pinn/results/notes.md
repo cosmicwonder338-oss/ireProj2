@@ -59,7 +59,7 @@ Running log of what failed, why, and what fixed it. Every number here comes from
   colourbar label collided with the neighbouring axis label → white-filled marker with a label box,
   constrained layout.
 
-## Stage 3 — forward PINN (setup; results pending first Kaggle run)
+## Stage 3 — forward PINN
 - **Loss scaling.** On backside quad_core, q̂_max ≈ 28 and ŝ ≈ 13.3 while T̂ ∈ [0.3, 0.9]. The raw
   residual is O(10), so its square would dominate the O(1) Neumann BC term by ~100×. The PDE
   residual is divided by `res_scale = max(q̂_max, ŝ·T̂_max)` so both terms start at comparable size.
@@ -67,3 +67,38 @@ Running log of what failed, why, and what fixed it. Every number here comes from
   instead of interpolating the gridded map; matches the FV grid map to 1e-16.
 - **Error metric.** Relative L2 is computed on the temperature *rise* T − T_amb. On absolute °C it
   would look 2–3× better than it really is.
+- **Result (Kaggle GPU, quad_core / backside, 4×64 tanh, 12 737 params, 10k Adam + L-BFGS):**
+  rel L2 (rise) 6.18e-4, max |err| 0.047 K, mean |err| 0.014 K, peak-T error −0.015 °C,
+  hotspot location error 0.0 mm (same cell). Training 244 s vs. FV solve 0.29 s; PINN inference
+  on the full 200² grid 2.0 ms. The 1-minute smoke run (300 Adam + 100 L-BFGS) already reached
+  rel L2 4.7e-2, max 2.5 K — L-BFGS alone cut the error ~3× in 100 iterations.
+- **Where the error lives: spectral bias at power-block edges.** The error map shows straight
+  streaks at x, y ≈ 1, 4.5, 5.5, 9 mm — exactly the edges of the power blocks, where q̂ jumps from
+  ~1.4 to ~28 over 0.15 mm. T itself is smooth there, but its second derivative (= −q̂ + ŝT̂) is
+  not, and a tanh MLP fits high-frequency content last. Fourier features / residual-adaptive
+  collocation (Stage 7) target exactly this.
+- **Honest speed statement.** For a single *forward* problem with known k and q the PINN is
+  ~800× slower than the sparse FV solve. Its value is in inverse problems (Stages 4–6) and in
+  parametric surrogates queried many times (Stage 8).
+- Refactor: collocation sets, physics losses, grid evaluation and snapshots moved to
+  `pinn/experiment.py` so Stages 4–8 reuse them; Stage 3 behaviour (and checkpoint signature) unchanged.
+
+## Stage 4 — inverse 1: constant k from 15 noisy sensors
+- **Setup.** quad_core / backside, true k = 150 W/mK, initial guess 50 W/mK. k̂ = exp(θ) (always
+  positive, Adam steps are relative). Loss = PDE + BC + 10 · mean (T̂(sensor) − T̂_obs)².
+  Insulated BCs are imposed as ∂T/∂n = 0 rather than k ∂T/∂n = 0, otherwise the optimiser could
+  satisfy them by driving k → 0.
+- **Classical baseline (FV least squares).** Bounded 1-D minimisation over log k, ~10 FV solves,
+  ~0.9 s per fit (local CPU). It inverts on a 100² grid while the data come from 200², to avoid
+  the *inverse crime* (same model for data and inversion → spuriously perfect recovery).
+  Noise-free: k error +0.017 % — the discretisation floor.
+- **k is only weakly identifiable here — a physics finding, not a solver bug.** With back-face
+  cooling the temperature is mostly set by the *local* balance q ≈ s(T − T_amb); k only controls
+  lateral spreading (ℓ = √(kt/h) ≈ 2.7 mm). So small sensor noise maps to large k error.
+  FV baseline over 20 noise draws per level (RMS / mean k error): 1 % noise → 4.4 % / +1.1 %,
+  2 % → 9.2 % / +2.5 %, 5 % → 26.3 % / +7.9 %. Error grows ~linearly with noise, with a
+  *positive bias* because T depends nonlinearly on k (overestimates are cheaper in misfit).
+  On the 3 paired draws the RMS errors are 3.3 / 6.7 / 18.1 %; one draw (seed 1) happens to be
+  nearly orthogonal to the k-sensitivity (error ≤ 0.08 % at every level), which is why 3 draws
+  alone would understate the noise sensitivity.
+- PINN results: pending the Kaggle run.

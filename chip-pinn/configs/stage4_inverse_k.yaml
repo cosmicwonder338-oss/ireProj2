@@ -1,0 +1,21 @@
+# Stage 4: unknown constant conductivity k, recovered from 15 noisy sensors (+ known q, sink).
+name: stage4_inverse_k
+problem:
+  layout: quad_core
+sensors:
+  n: 15
+  placement: random
+stage4:
+  noise_levels: [0.0, 0.01, 0.02, 0.05]   # std as a fraction of the max temperature rise
+  noise_seeds: [0, 1, 2]                   # independent noise draws per level (same sensor positions)
+  k_init: 50.0                             # W/mK initial guess (true silicon k = 150)
+  run_pinn: true                           # false -> only the FV least-squares baseline (no torch)
+  baseline_grid: 100                       # FV baseline grid (data come from 200²: no inverse crime)
+  baseline_draws: 20                       # extra FV-only noise draws per level for the error curve
+loss:
+  w_data: 10.0                             # sensor misfit weight (T̂ units)
+training:
+  adam_iters: 6000
+  lbfgs_iters: 1000
+  eval_every: 1000
+  snapshot_every: 0

@@ -55,3 +55,17 @@ def build_mlp(mcfg, lo, hi, **overrides) -> MLP:
 
 def count_params(m: nn.Module) -> int:
     return sum(p.numel() for p in m.parameters() if p.requires_grad)
+
+
+class PositiveScalar(nn.Module):
+    """A single trainable positive number, parametrised as exp(θ) (e.g. unknown constant k̂).
+
+    Log-parametrisation keeps it positive and makes Adam steps relative (a step of 1e-3 in θ is a
+    0.1 % change whatever the magnitude)."""
+
+    def __init__(self, init: float):
+        super().__init__()
+        self.theta = nn.Parameter(torch.tensor(float(init)).log())
+
+    def forward(self, *_) -> torch.Tensor:
+        return self.theta.exp()

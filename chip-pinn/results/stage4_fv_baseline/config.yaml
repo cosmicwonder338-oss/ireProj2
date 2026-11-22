@@ -1,0 +1,74 @@
+name: stage4_fv_baseline
+seed: 1234
+device: auto
+physics:
+  T_amb: 40.0
+  h: 10000.0
+  materials:
+    silicon: 150.0
+    copper: 400.0
+    tim: 3.0
+    void: 0.03
+  cooling: backside
+  thickness: 0.0005
+  boundary:
+    bottom: convective
+    top: insulated
+    left: insulated
+    right: insulated
+geometry:
+  Lx: 0.01
+  Ly: 0.01
+scales:
+  L: 0.01
+  k_ref: 150.0
+  dT: 50.0
+solver:
+  nx: 200
+  ny: 200
+layouts:
+  edge_width_mm: 0.15
+  target_peak_rise: 45.0
+problem:
+  layout: quad_core
+sensors:
+  n: 15
+  noise_rel: 0.01
+  placement: random
+model:
+  hidden: 64
+  layers: 4
+  activation: tanh
+training:
+  adam_iters: 6000
+  adam_lr: 0.001
+  lr_final_ratio: 0.05
+  lbfgs_iters: 1000
+  lbfgs_chunk: 50
+  n_collocation: 8192
+  n_boundary: 512
+  resample_every: 500
+  log_every: 100
+  eval_every: 1000
+  snapshot_every: 0
+  ckpt_every: 1000
+  time_budget_min: 15.0
+  resume: true
+loss:
+  w_pde: 1.0
+  w_bc: 1.0
+  w_data: 10.0
+stage4:
+  noise_levels:
+  - 0.0
+  - 0.01
+  - 0.02
+  - 0.05
+  noise_seeds:
+  - 0
+  - 1
+  - 2
+  k_init: 50.0
+  run_pinn: false
+  baseline_grid: 100
+  baseline_draws: 20
