@@ -49,13 +49,23 @@ def field(ax, grid, F, title="", kind="T", label="", sensors_xy=None, contours=T
     return im
 
 
-def mark(ax, xy_mm, text, marker="x"):
-    """Mark a point (e.g. the hotspot) with a symbol + direct label, not colour alone."""
-    ax.plot(*xy_mm, marker=marker, ms=8, mew=2, color=INK, zorder=6)
-    ax.annotate(text, xy_mm, xytext=(5, 5), textcoords="offset points", fontsize=8, color=INK)
+def mark(ax, xy_mm, text, marker="X"):
+    """Mark a point (e.g. the hotspot) with a symbol + direct label, not colour alone.
+    White fill + dark outline and a white label box keep it readable on the darkest colours."""
+    ax.plot(*xy_mm, marker=marker, ms=10, mfc="white", mec=INK, mew=1.2, zorder=7, ls="none")
+    ax.annotate(text, xy_mm, xytext=(7, 7), textcoords="offset points", fontsize=8, color=INK,
+                zorder=8, bbox=dict(boxstyle="round,pad=0.2", fc="white", ec="none", alpha=0.85))
+
+
+def figure(nrows=1, ncols=1, panel=(4.6, 3.9)):
+    """Figure with constrained layout (keeps colourbar labels from colliding with neighbours)."""
+    fig, axes = plt.subplots(nrows, ncols, figsize=(panel[0] * ncols, panel[1] * nrows),
+                             layout="constrained", squeeze=False)
+    return fig, axes
 
 
 def save(fig, path):
-    fig.tight_layout()
+    if not fig.get_constrained_layout():
+        fig.tight_layout()
     fig.savefig(path, bbox_inches="tight", facecolor="white")
     plt.close(fig)

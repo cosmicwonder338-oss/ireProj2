@@ -64,11 +64,10 @@ def main():
 
 def plot(cfg, results, out_dir):
     from common import plotting as P
-    import matplotlib.pyplot as plt
 
     for cooling in cfg.stage1.coolings:
         layouts = list(cfg.stage1.layouts)
-        fig, axes = plt.subplots(len(layouts), 2, figsize=(9, 4.0 * len(layouts)))
+        fig, axes = P.figure(len(layouts), 2)
         for r, layout in enumerate(layouts):
             prob, sol, sens, m = results[(layout, cooling)]
             P.field(axes[r, 0], prob.grid, prob.q * float(cfg.physics.thickness) / 1e4,

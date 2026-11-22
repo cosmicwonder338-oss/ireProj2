@@ -52,4 +52,18 @@ Running log of what failed, why, and what fixed it. Every number here comes from
 - **Autograd residual** (`pinn/losses.py`, divergence form ∂x(k ∂xT) + ∂y(k ∂yT), so ∇k·∇T is
   included automatically): tests written for the MMS field, analytic gradients, all BC residuals,
   and a two-network (T-net, softplus k-net) divergence vs. central differences. They need torch,
-  so they skip locally — **results pending the first Kaggle run.**
+  so they skip locally. **Kaggle run (GPU): all 15 tests pass**, including the 5 autograd tests
+  (float64 MMS residual < 1e-10; two-network divergence matches central differences to < 1e-6
+  relative; float32 residual < 1e-4 relative to max |q̂|).
+- Plot fix after the first Kaggle render: the hotspot marker/label were dark-on-dark-red and the
+  colourbar label collided with the neighbouring axis label → white-filled marker with a label box,
+  constrained layout.
+
+## Stage 3 — forward PINN (setup; results pending first Kaggle run)
+- **Loss scaling.** On backside quad_core, q̂_max ≈ 28 and ŝ ≈ 13.3 while T̂ ∈ [0.3, 0.9]. The raw
+  residual is O(10), so its square would dominate the O(1) Neumann BC term by ~100×. The PDE
+  residual is divided by `res_scale = max(q̂_max, ŝ·T̂_max)` so both terms start at comparable size.
+- **Exact source at every collocation point.** q is evaluated analytically (`solver.layouts.q_function`)
+  instead of interpolating the gridded map; matches the FV grid map to 1e-16.
+- **Error metric.** Relative L2 is computed on the temperature *rise* T − T_amb. On absolute °C it
+  would look 2–3× better than it really is.

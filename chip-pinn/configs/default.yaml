@@ -41,6 +41,9 @@ layouts:
   edge_width_mm: 0.15    # tanh smoothing of power-block edges (0 = sharp)
   target_peak_rise: 45.0 # K; power is scaled so max(T) - T_amb hits this
 
+problem:
+  layout: quad_core      # quad_core | cpu_gpu | random_hotspots
+
 sensors:
   n: 15
   noise_rel: 0.01        # Gaussian noise std as a fraction of the max temperature rise
@@ -52,11 +55,21 @@ model:
   activation: tanh
 
 training:
-  adam_iters: 5000
+  adam_iters: 10000
   adam_lr: 1.0e-3
-  lbfgs_iters: 500
-  n_collocation: 4096
-  n_boundary: 512
+  lr_final_ratio: 0.05   # exponential decay: lr ends at adam_lr * this
+  lbfgs_iters: 2000
+  lbfgs_chunk: 50        # L-BFGS iterations between logs / checkpoints
+  n_collocation: 8192
+  n_boundary: 512        # per edge
+  resample_every: 500    # new random collocation points every N Adam steps (0 = fixed)
   log_every: 100
+  eval_every: 500        # full-grid error vs reference
+  snapshot_every: 250    # store predictions for the training GIF
   ckpt_every: 1000
-  time_budget_min: 15.0  # hard wall-clock limit per run
+  time_budget_min: 15.0  # hard wall-clock limit per run (both phases)
+  resume: true           # continue from results/<name>/ckpt.pt if the config matches
+
+loss:
+  w_pde: 1.0             # PDE residual (normalised by max(|q̂|, ŝ·T̂max))
+  w_bc: 1.0              # boundary-condition residual

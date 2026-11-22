@@ -103,8 +103,21 @@ def build_problem(cfg, layout: str, cooling: str, nx: int | None = None, ny: int
     unit = solve(Problem(grid, k, q_unit, bc, sink=sink, T_sink=T_amb))
     scale = float(cfg.layouts.target_peak_rise) / (unit.T.max() - T_amb)
     prob = Problem(grid, k, q_unit * scale, bc, sink=sink, T_sink=T_amb,
-                   meta={"layout": layout, "cooling": cooling, "blocks": lay["blocks"]})
+                   meta={"layout": layout, "cooling": cooling, "blocks": lay["blocks"],
+                         "q_scale_W_m3": 1.0e8 * scale})
     return prob, solve(prob)
+
+
+def q_function(cfg, layout: str, q_scale_W_m3: float):
+    """Power density as a function of arbitrary points: q(x_m, y_m) -> W/m³ (numpy arrays).
+    Lets the PINN evaluate the *exact* source at any collocation point, not a gridded copy."""
+    w = float(cfg.layouts.edge_width_mm) * MM
+    fn = LAYOUTS[layout]
+
+    def q(x, y):
+        return q_scale_W_m3 * fn(np.asarray(x, float), np.asarray(y, float), w,
+                                 seed=int(cfg.seed))["q_rel"]
+    return q
 
 
 def summarize(cfg, prob: Problem, sol) -> dict:

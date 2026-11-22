@@ -1,0 +1,5 @@
+# Stage 3: forward PINN (known k, q -> T) on the backside-cooled quad-core chip.
+# Other layouts:  --set name=stage3_forward_cpu_gpu problem.layout=cpu_gpu
+name: stage3_forward
+problem:
+  layout: quad_core
