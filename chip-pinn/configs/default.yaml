@@ -53,6 +53,9 @@ model:
   hidden: 64
   layers: 4
   activation: tanh
+  fourier:               # random Fourier input features (Stage 7); n = 0 disables
+    n: 0
+    sigma: 2.0
 
 training:
   adam_iters: 10000
@@ -69,7 +72,18 @@ training:
   ckpt_every: 1000
   time_budget_min: 15.0  # hard wall-clock limit per run (both phases)
   resume: true           # continue from results/<name>/ckpt.pt if the config matches
+  # --- improvements (Stage 7 ablation); defaults = vanilla PINN ---
+  collocation: uniform   # uniform | rad (residual-based adaptive distribution)
+  rad_pool_factor: 4     # candidate pool size = factor * n_collocation
+  rad_k: 1.0             # sampling density ∝ |r|^k / mean + c
+  rad_c: 1.0
+  adaptive_weights: false  # gradient-statistics loss balancing (Wang et al. 2021)
+  balance_every: 100
 
 loss:
   w_pde: 1.0             # PDE residual (normalised by max(|q̂|, ŝ·T̂max))
   w_bc: 1.0              # boundary-condition residual
+  data_weighting: noise  # noise: w_data = (sigma_pde / sigma_noise)^2 | fixed: use w_data
+  sigma_pde: 0.01        # tolerated normalised PDE residual (sets the physics/data balance)
+  sigma_floor_K: 0.1     # noise floor for noise-free data (K)
+  w_data: 10.0           # only for data_weighting: fixed

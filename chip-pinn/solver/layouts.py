@@ -70,7 +70,24 @@ def random_hotspots(X, Y, w, seed=0, n=5):
     return {"q_rel": q, "blocks": spots}
 
 
-LAYOUTS = {"quad_core": quad_core, "cpu_gpu": cpu_gpu, "random_hotspots": random_hotspots}
+def random_mixed(X, Y, w, seed=0):
+    """Random library layout (for data-driven sensor placement): 1–3 rectangular blocks and
+    1–5 Gaussian hotspots with random sizes and powers. Never used as a test chip."""
+    g = rng(seed)
+    q = 0.05 * np.ones_like(X)
+    for _ in range(g.integers(1, 4)):
+        x0, y0 = g.uniform(0.5, 7.0, size=2)
+        wx, wy = g.uniform(1.0, 4.0, size=2)
+        q += g.uniform(0.1, 1.0) * smooth_box(X, Y, x0 * MM, min(x0 + wx, 9.5) * MM, y0 * MM,
+                                              min(y0 + wy, 9.5) * MM, w)
+    for _ in range(g.integers(1, 6)):
+        xc, yc = g.uniform(1.0, 9.0, size=2) * MM
+        q += g.uniform(0.2, 1.0) * gaussian(X, Y, xc, yc, g.uniform(0.4, 1.2) * MM)
+    return {"q_rel": q, "blocks": {}}
+
+
+LAYOUTS = {"quad_core": quad_core, "cpu_gpu": cpu_gpu, "random_hotspots": random_hotspots,
+           "random_mixed": random_mixed}
 
 
 # ----- problem construction ---------------------------------------------------------------------

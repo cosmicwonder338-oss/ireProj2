@@ -1,0 +1,22 @@
+# Stage 5 (main result): unknown power map q(x,y) + temperature from 15 noisy sensors.
+name: stage5_inverse_q
+stage5:
+  layouts: [quad_core, cpu_gpu, random_hotspots]
+  prior_layout: quad_core
+  prior_variants:                 # prior-sensitivity study (every variant reported, none tuned on truth)
+    no_tv: [loss.w_tv_q=0.0]
+    tv_1e-5: [loss.w_tv_q=1.0e-5]
+    tv_1e-3: [loss.w_tv_q=1.0e-3]
+    gaussian_sources: [qmodel.type=sources, qmodel.n_sources=4, loss.w_tv_q=0.0]
+sensors:
+  n: 15
+  noise_rel: 0.01
+  placement: random
+qmodel:
+  type: mlp              # mlp: free-form softplus network | sources: K learnable Gaussian sources
+loss:
+  w_power: 1.0           # known total power (package telemetry)
+  w_tv_q: 1.0e-4         # total-variation prior on q (piecewise-constant power blocks)
+training:
+  adam_iters: 10000
+  lbfgs_iters: 1500

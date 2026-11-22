@@ -13,7 +13,7 @@ stage4:
   baseline_grid: 100                       # FV baseline grid (data come from 200²: no inverse crime)
   baseline_draws: 20                       # extra FV-only noise draws per level for the error curve
 loss:
-  w_data: 10.0                             # sensor misfit weight (T̂ units)
+  data_weighting: noise                    # w_data = (sigma_pde / sigma_noise)^2  (v1 used fixed 10)
 training:
   adam_iters: 6000
   lbfgs_iters: 1000

@@ -16,7 +16,9 @@ import torch
 
 from common.config import parse_args, setup_run
 from common.device import env_report
-from pinn.experiment import Collocation, GridEvaluator, config_signature, physics_losses
+from pinn.experiment import (Collocation, GridEvaluator, config_signature, physics_losses,
+                             residual_scorer)
+from pinn.losses import LossBalancer
 from pinn.models import build_mlp, count_params
 from pinn.problem import ChipProblem
 from pinn.train import Trainer
@@ -35,17 +37,25 @@ def main():
     print(f"[stage3] MLP {cfg.model.layers}x{cfg.model.hidden} {cfg.model.activation}, "
           f"{count_params(model)} parameters")
 
-    col = Collocation(cp, t, device)
+    # ablation switches (Stage 7): training.collocation = uniform | rad,
+    # training.adaptive_weights = true | false, model.fourier.n > 0
+    col = Collocation(cp, t, device, score_fn=residual_scorer(model, cp, cp.k_hat))
     ev = GridEvaluator(cp, model, device)
-    w_pde, w_bc = float(cfg.loss.w_pde), float(cfg.loss.w_bc)
+    weights = {"pde": float(cfg.loss.w_pde), "bc": float(cfg.loss.w_bc)}
+    bal = LossBalancer(model.parameters(), every=int(t.get("balance_every", 100)),
+                       enabled=bool(t.get("adaptive_weights", False)))
+    holder = {}
 
     def loss_fn():
         l_pde, l_bc = physics_losses(model, col, cp, cp.k_hat)
-        return w_pde * l_pde + w_bc * l_bc, {"pde": l_pde, "bc": l_bc}
+        bal.update = holder["trainer"].phase == "adam"
+        total = bal({"pde": l_pde, "bc": l_bc}, weights)
+        return total, {"pde": l_pde, "bc": l_bc, **bal.logged()}
 
     trainer = Trainer({"T": model}, loss_fn, t, out_dir, device, resample=col.resample,
                       evaluate=ev.evaluate, snapshot=ev.snapshot,
                       signature=config_signature(cfg))
+    holder["trainer"] = trainer
     history = trainer.run()
 
     # ---------------- final metrics ----------------

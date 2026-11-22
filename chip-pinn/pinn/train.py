@@ -136,7 +136,7 @@ class Trainer:
         if self.phase == "lbfgs" and int(t.lbfgs_iters) > 0:
             if self.resample is not None:
                 self.resample()
-            chunk = int(t.get("lbfgs_chunk", 50))
+            chunk = min(int(t.get("lbfgs_chunk", 50)), int(t.lbfgs_iters))
             opt = torch.optim.LBFGS(self.params, lr=1.0, max_iter=chunk, history_size=50,
                                     tolerance_grad=1e-9, tolerance_change=1e-12,
                                     line_search_fn="strong_wolfe")

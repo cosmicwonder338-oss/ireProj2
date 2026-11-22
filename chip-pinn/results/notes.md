@@ -101,4 +101,76 @@ Running log of what failed, why, and what fixed it. Every number here comes from
   On the 3 paired draws the RMS errors are 3.3 / 6.7 / 18.1 %; one draw (seed 1) happens to be
   nearly orthogonal to the k-sensitivity (error ≤ 0.08 % at every level), which is why 3 draws
   alone would understate the noise sensitivity.
-- PINN results: pending the Kaggle run.
+- **PINN v1 (fixed data weight w_data = 10), Kaggle:** RMS k error over the paired draws
+  0 % → 0.36 %, 1 % → 3.6 % (on par with the FV baseline's 3.3 %), but 2 % → 14.3 % and
+  5 % → 86.3 % (baseline 6.7 % / 18.1 %). At 5 % noise L-BFGS drove k down to 4–65 W/mK and the
+  temperature field fell apart (T rel L2 0.63).
+  **Diagnosis — loss imbalance with noisy data.** With a fixed, large data weight the optimiser can
+  lower the total loss by bending T through the noisy readings at the expense of the PDE, and a
+  small k makes the field "bendable" (short spreading length), so k collapses. L-BFGS, which
+  minimises the given objective very effectively, exploits this hardest. The k trajectories also
+  show Adam overshooting to ~200 W/mK before settling — k is a stiff, weakly-identified direction.
+  **Fix — noise-aware (likelihood) weighting:** w_data = (σ_pde / σ_noise)², σ_noise the sensor
+  std in T̂ units (floor 0.1 K), σ_pde = 0.01. Noisy data now pull proportionally less:
+  w = 25 (0 %), 1.2 (1 %), 0.31 (2 %), 0.05 (5 %), instead of 10 everywhere. Same rule is used for
+  every later inverse problem. v2 results: pending the next Kaggle run.
+
+## Stages 5–9 — design decisions (before the first full run)
+- **Local smoke tests.** A CPU-only torch venv (scratch folder, not part of the project) runs every
+  stage for 20 iterations before each Kaggle run, so crashes are caught here, not on the GPU.
+  All 15 tests + every stage script + GIF + README generator pass the smoke test.
+- **Stage 5 priors.** 15 point sensors cannot determine a whole power map. Priors used, each with
+  a physical justification: q ≥ 0 (softplus), known total power (package power telemetry; it also
+  pins the mean temperature through the global energy balance ∫q = ∫s(T − T_amb)), and total
+  variation on q (power blocks are piecewise constant). The PDE residual is normalised by
+  ŝ·max(T̂_obs), a scale computed from the data — not from the true power map.
+- **Stage 5 baseline.** Thin-plate-spline interpolation of the same sensors — what you'd do without
+  physics. It can only put the hotspot near a sensor or at an extrapolated edge.
+- **Stage 6 interface handling.** Per-layer temperature networks + temperature- and flux-continuity
+  residuals at the interfaces, instead of one network with a smoothed k: T has a kink at every
+  interface (∂T/∂y jumps 50× silicon→TIM), which a single smooth MLP smears, and smearing the k-jump
+  is exactly what would hide the void. Only the TIM's k(x,y) is unknown (layer geometry and the other
+  materials are known by design); it is a bounded log-k network initialised at the nominal TIM value.
+- **Stage 6 signal.** FV: the void (x = 6–7.5 mm, k = 0.03 W/mK) raises the die top surface by at most
+  5.72 K, centred at x = 6.78 mm, smeared to ~5 mm width by lateral spreading in the silicon; 1 %
+  sensor noise is 0.45 K. Detectable, but the edges of the void are blurred in the data.
+- **Stage 7 variants.** Fourier features (64 Gaussian frequencies, σ = 2, plus the raw input);
+  learning-rate-annealing loss balancing (Wang, Teng & Perdikaris 2021); residual-based adaptive
+  distribution of collocation points (RAD, Wu et al. 2023). Same budget for every variant.
+- **Stage 8a smart placement.** QR column pivoting on POD modes of a library of 60 *random* chips
+  (never the test chip) — data-driven sparse sensor placement (Manohar et al. 2018).
+- **Stage 8b nonlinearity.** Total power alone would make T exactly linear in P (a trivial surrogate),
+  so silicon gets its real temperature dependence k ∝ T^−1.3. FV then needs Picard iterations
+  (4–5 sparse solves per query); at 1.4× nominal power the constant-k model under-predicts the peak
+  by ~4.6 K (107.6 vs 103 °C in a smoke-test FV run).
+
+## CPU sanity runs before the first full GPU run (short budgets — not final results)
+These ran on a local CPU at reduced size (2–3k Adam iterations, 2–4k collocation points), so they
+only show *direction*; final numbers come from the Kaggle runs.
+- **Stage 5 is genuinely non-unique from 15 random sensors.** Free-form q-net + TV 1e-4, quad_core,
+  3000 Adam + 300 L-BFGS: sensors fitted *at noise level* (data loss 8.5e-5 ≈ σ² = 8.1e-5), yet
+  max error 10.1 K, peak −6.2 K, hotspot 3.4 mm off — the same as thin-plate-spline interpolation
+  (10.5 K, −5.0 K, 3.5 mm). The reconstructed power map is a smooth ramp rising toward the corner
+  nearest the hottest sensors: it explains every reading, but no sensor sits over the busy core, so
+  nothing in the data rules it out. TV *prefers* that ramp (its total variation 1.8 is far below
+  the true block map's), so a stronger TV prior cannot fix it.
+  → Added a **prior-sensitivity study** to Stage 5 (TV 0 / 1e-5 / 1e-3 and a structured prior), all
+  reported, none selected using the truth.
+- **Structured prior: K = 4 learnable Gaussian sources** (centre, widths, power ≥ 0). Short CPU
+  test: peak-T error −3.0 K (vs −6.2 K free-form, −5.0 K spline), max error 9.75 K, but the hotspot
+  was still placed 3.5 mm off. Adam alone stalled (PDE residual 0.11); L-BFGS cut it to 6e-5 within
+  250 iterations — position/width parameters are stiff for Adam.
+- **Sensor placement may matter more than the prior.** With 15 QR-placed sensors (Stage 8a
+  method) the spline baseline alone reached max 2.75 K, hotspot 0.46 mm, peak −1.9 K. The PINN in
+  that test did not finish (time budget hit before L-BFGS; data misfit still ~2.7 K RMS), so the
+  PINN-vs-spline comparison with good placement is left to the full GPU run of Stage 8a.
+- **Stage 6 conditioning fix: isotropic input scaling.** First CPU run: the silicon-layer PDE
+  residual (2.1e-2, locally 37 % of q̂_max) was 10× the copper/TIM ones and the insulated top BC was
+  the worst boundary term. Cause: each layer network normalised its own box to [−1, 1] in x *and*
+  y, stretching the 0.5 mm × 10 mm die 20× in y, which amplifies network curvature in ∂²T/∂y² by
+  400×. Switched to isotropic scaling (same scale for x and y; a thin layer is a thin slice of input
+  space). Same temperature accuracy reached in about half the iterations (rel L2 0.066 at ~800
+  iterations vs 0.059 at 2000). In both short runs the TIM k only drifted uniformly (3 → 2.4–2.6
+  W/mK) and no void was found — the top-surface data were still misfit by 1.5–2.4 K RMS, the same
+  order as the 5.7 K void signature, so the run was too short to say whether the void is
+  recoverable. The GPU run has ~12× the budget.

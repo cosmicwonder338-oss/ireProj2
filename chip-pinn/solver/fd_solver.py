@@ -177,3 +177,19 @@ def solve(p: Problem) -> Solution:
     T = T.reshape(p.grid.ny, p.grid.nx)
     info.update(energy_balance(p, T))
     return Solution(T=T, grid=p.grid, info=info)
+
+
+def solve_nonlinear(p: Problem, k_of_T, tol: float = 1e-6, max_iter: int = 50) -> Solution:
+    """Temperature-dependent conductivity k(T) by Picard iteration: freeze k at the previous T,
+    solve the linear problem, repeat until max |ΔT| < tol (K)."""
+    import dataclasses
+    t0 = time.perf_counter()
+    sol = solve(p)
+    for it in range(1, max_iter + 1):
+        sol_new = solve(dataclasses.replace(p, k=k_of_T(sol.T)))
+        dT = float(np.abs(sol_new.T - sol.T).max())
+        sol = sol_new
+        if dT < tol:
+            break
+    sol.info.update({"picard_iters": it, "picard_last_dT": dT, "t_total_s": time.perf_counter() - t0})
+    return sol

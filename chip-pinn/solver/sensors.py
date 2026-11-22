@@ -40,3 +40,38 @@ def read_sensors(sol, xy: np.ndarray, noise_rel: float, T_amb: float, seed: int 
     sigma = noise_rel * (sol.T.max() - T_amb)
     T_noisy = T_clean + rng(seed + 1).normal(0.0, sigma, len(xy)) if sigma > 0 else T_clean.copy()
     return {"xy": xy, "T_clean": T_clean, "T_noisy": T_noisy, "sigma": float(sigma)}
+
+
+def pod_library(cfg, n_maps: int = 60, n_grid: int = 50, seed0: int = 10_000):
+    """Temperature snapshots of *random* chips (never the test layout), for sensor placement."""
+    from .fd_solver import Grid, Problem, solve
+    from .layouts import LAYOUTS, MM, cooling_setup
+    ge = cfg.geometry
+    g = Grid(float(ge.Lx), float(ge.Ly), n_grid, n_grid)
+    X, Y = g.mesh()
+    bc, sink = cooling_setup(cfg, cfg.physics.cooling)
+    k = np.full_like(X, float(cfg.physics.materials.silicon))
+    snaps = []
+    for i in range(n_maps):
+        q = 1e9 * LAYOUTS["random_mixed"](X, Y, float(cfg.layouts.edge_width_mm) * MM,
+                                          seed=seed0 + i)["q_rel"]
+        T = solve(Problem(g, k, q, bc, sink=sink, T_sink=0.0)).T
+        snaps.append(T / T.max())
+    return g, np.stack(snaps)
+
+
+def qr_placement(n: int, grid, snaps: np.ndarray, margin: float = 0.5e-3) -> np.ndarray:
+    """Data-driven sparse sensor placement (Manohar et al., IEEE Control Systems 2018):
+    POD modes Ψ_r of the snapshot library, then QR with column pivoting on Ψ_rᵀ — the pivots are
+    the locations that best condition the reconstruction of the r leading modes. Returns (n, 2) m."""
+    import scipy.linalg
+    X, Y = grid.mesh()
+    ok = ((X >= margin) & (X <= grid.Lx - margin) & (Y >= margin) & (Y <= grid.Ly - margin)).ravel()
+    D = snaps.reshape(len(snaps), -1)[:, ok].T                     # (candidates, maps)
+    U, _, _ = np.linalg.svd(D, full_matrices=False)
+    r = min(n, U.shape[1])
+    Psi = U[:, :r]
+    M = Psi.T if n <= r else Psi @ Psi.T
+    _, _, piv = scipy.linalg.qr(M, pivoting=True, mode="economic")
+    idx = np.flatnonzero(ok)[piv[:n]]
+    return np.column_stack([X.ravel()[idx], Y.ravel()[idx]])

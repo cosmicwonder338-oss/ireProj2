@@ -19,6 +19,7 @@ import numpy as np
 import pandas as pd
 
 from common.config import parse_args, setup_run
+from common.report import md_table
 from common.seed import set_seed
 from solver.inverse import fit_constant_k
 from solver.layouts import build_problem
@@ -27,8 +28,8 @@ from solver.sensors import placement, read_sensors
 
 def run_pinn(cfg, cp, sens, out_dir, device, k_init, tag):
     """One inverse PINN run. Returns (k_pred W/mK, field metrics, train seconds, history)."""
-    from pinn.experiment import (Collocation, GridEvaluator, config_signature, physics_losses,
-                                 sensor_tensors)
+    from pinn.experiment import (Collocation, GridEvaluator, config_signature, data_weight,
+                                 physics_losses, sensor_tensors)
     from pinn.losses import mse
     from pinn.models import PositiveScalar, build_mlp
     from pinn.train import Trainer
@@ -40,7 +41,9 @@ def run_pinn(cfg, cp, sens, out_dir, device, k_init, tag):
     col = Collocation(cp, t, device)
     ev = GridEvaluator(cp, model, device)
     xs, Ts = sensor_tensors(cp, sens, device)
-    w_pde, w_bc, w_data = (float(cfg.loss.w_pde), float(cfg.loss.w_bc), float(cfg.loss.w_data))
+    w_pde, w_bc = float(cfg.loss.w_pde), float(cfg.loss.w_bc)
+    w_data = data_weight(cfg, sens["sigma"])
+    print(f"[stage4] {tag}: data weight {w_data:.3g}")
 
     def loss_fn():
         k = kmod()
@@ -57,17 +60,9 @@ def run_pinn(cfg, cp, sens, out_dir, device, k_init, tag):
     m = ev.metrics()
     pd.DataFrame(history).to_csv(out_dir / "history.csv", index=False)
     with open(out_dir / "metrics.json", "w", encoding="utf-8") as f:
-        json.dump({"k_pred": k_pred, "train_time_s": trainer.elapsed, **m}, f, indent=2)
+        json.dump({"k_pred": k_pred, "train_time_s": trainer.elapsed, "w_data": w_data, **m}, f,
+                  indent=2)
     return k_pred, m, trainer.elapsed, history
-
-
-def md_table(df: pd.DataFrame, floatfmt="{:.3g}") -> str:
-    """Markdown table without the optional `tabulate` dependency."""
-    cols = list(df.columns)
-    fmt = lambda v: floatfmt.format(v) if isinstance(v, (float, np.floating)) else str(v)  # noqa: E731
-    lines = ["| " + " | ".join(cols) + " |", "|" + "---|" * len(cols)]
-    lines += ["| " + " | ".join(fmt(v) for v in row) + " |" for row in df.itertuples(index=False)]
-    return "\n".join(lines)
 
 
 def main():

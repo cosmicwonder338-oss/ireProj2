@@ -1,0 +1,18 @@
+# Stage 8b: parametric PINN T(x, y, P) with temperature-dependent silicon conductivity.
+name: stage8_parametric
+problem:
+  layout: quad_core
+stage8b:
+  p_min: 0.5             # total power range, relative to the Stage 1 nominal power
+  p_max: 1.5
+  k300: 150.0            # W/mK at 300 K
+  alpha: 1.3             # k ∝ T^-alpha (silicon)
+  test_powers: [0.6, 0.85, 1.1, 1.45]   # held-out query powers (relative)
+model:
+  hidden: 64
+  layers: 5
+training:
+  adam_iters: 12000
+  lbfgs_iters: 1500
+  eval_every: 1000
+  snapshot_every: 0

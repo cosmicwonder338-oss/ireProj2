@@ -1,0 +1,9 @@
+# Stage 7: ablation of PINN improvements on Stage 3 (forward) and Stage 5 (inverse q, quad_core).
+# The training block below is forwarded to every child run so all variants get the same budget.
+name: stage7_ablation
+training:
+  adam_iters: 6000
+  lbfgs_iters: 1000
+  n_collocation: 8192
+  eval_every: 1000
+  time_budget_min: 15.0

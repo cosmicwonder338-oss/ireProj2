@@ -118,8 +118,9 @@ def parse_args(description: str = "", default_config: str | None = None) -> argp
     """Standard CLI for every stage script: --config <yaml> [--set key=value ...]."""
     ap = argparse.ArgumentParser(description=description)
     ap.add_argument("--config", default=default_config, required=default_config is None)
-    ap.add_argument("--set", nargs="*", default=[], metavar="KEY=VALUE",
-                    help="override config entries, e.g. --set training.adam_iters=200")
+    ap.add_argument("--set", nargs="*", default=[], action="extend", metavar="KEY=VALUE",
+                    help="override config entries, e.g. --set training.adam_iters=200 "
+                         "(may be repeated; later values win)")
     return ap.parse_args()
 
 
@@ -128,9 +129,14 @@ def setup_run(config_path: str | Path, overrides: Iterable[str] | None = None):
 
     Returns (cfg, out_dir, device).
     """
+    import sys
+
     from .device import get_device
     from .seed import set_seed
 
+    for stream in (sys.stdout, sys.stderr):       # unicode symbols (k̂, °C) on Windows consoles
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8", errors="replace")
     cfg = load_config(config_path, overrides)
     set_seed(cfg.seed)
     out_dir = results_dir(cfg.name)

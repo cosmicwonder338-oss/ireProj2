@@ -52,9 +52,17 @@ def field(ax, grid, F, title="", kind="T", label="", sensors_xy=None, contours=T
 def mark(ax, xy_mm, text, marker="X"):
     """Mark a point (e.g. the hotspot) with a symbol + direct label, not colour alone.
     White fill + dark outline and a white label box keep it readable on the darkest colours."""
-    ax.plot(*xy_mm, marker=marker, ms=10, mfc="white", mec=INK, mew=1.2, zorder=7, ls="none")
-    ax.annotate(text, xy_mm, xytext=(7, 7), textcoords="offset points", fontsize=8, color=INK,
-                zorder=8, bbox=dict(boxstyle="round,pad=0.2", fc="white", ec="none", alpha=0.85))
+    ax.plot(*xy_mm, marker=marker, ms=10, mfc="white", mec=INK, mew=1.2, zorder=7, ls="none",
+            clip_on=False)
+    # keep the label inside the axes: flip it left / down near the right / top edge
+    (x0, x1), (y0, y1) = ax.get_xlim(), ax.get_ylim()
+    fx = (xy_mm[0] - x0) / (x1 - x0)
+    fy = (xy_mm[1] - y0) / (y1 - y0)
+    dx, ha = (-7, "right") if fx > 0.7 else (7, "left")
+    dy, va = (-7, "top") if fy > 0.85 else (7, "bottom")
+    ax.annotate(text, xy_mm, xytext=(dx, dy), textcoords="offset points", fontsize=8, color=INK,
+                ha=ha, va=va, zorder=8,
+                bbox=dict(boxstyle="round,pad=0.2", fc="white", ec="none", alpha=0.85))
 
 
 def figure(nrows=1, ncols=1, panel=(4.6, 3.9)):

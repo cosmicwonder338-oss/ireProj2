@@ -1,0 +1,18 @@
+# Stage 8a: sensor-count study (inverse power map, quad_core), random vs QR placement.
+name: stage8_sensors
+problem:
+  layout: quad_core
+sensors:
+  noise_rel: 0.01
+stage8:
+  n_sensors: [5, 10, 15, 25]
+  placements: [random, qr]
+  library_maps: 60       # random chips (never the test chip) used to learn the placement
+loss:
+  w_power: 1.0
+  w_tv_q: 1.0e-4
+training:
+  adam_iters: 6000
+  lbfgs_iters: 1000
+  eval_every: 1000
+  snapshot_every: 0

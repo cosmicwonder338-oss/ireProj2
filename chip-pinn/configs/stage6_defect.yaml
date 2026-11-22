@@ -1,0 +1,18 @@
+# Stage 6: hidden void in the TIM layer, detected from top-surface temperatures only.
+name: stage6_defect
+stack:
+  layers: [[copper, 1.0], [tim, 0.2], [silicon, 0.5]]   # bottom -> top, thickness in mm
+  void: {x0: 6.0, x1: 7.5}                               # mm, spans the TIM thickness
+  hotspot: {x: 3.0, width: 1.0, amp: 1.5}                # die power: 1 + amp * gaussian
+  nx: 200
+  dy_mm: 0.01
+stage6:
+  n_sensors: 40          # IR line scan of the top surface
+  noise_rel: 0.01        # 1 % of the max rise (~0.45 K)
+  tv_weights: [0.0, 1.0e-3]
+loss:
+  w_iface: 1.0           # T and heat-flux continuity at layer interfaces
+training:
+  adam_iters: 10000
+  lbfgs_iters: 1500
+  n_collocation: 9000    # split evenly over the 3 layers

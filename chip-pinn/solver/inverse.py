@@ -39,3 +39,13 @@ def fit_constant_k(cfg, layout: str, cooling: str, q_scale_W_m3: float, sensor_x
                           options={"xatol": 1e-6})
     return {"k": float(np.exp(res.x)), "rms_misfit_K": float(np.sqrt(res.fun / len(T_obs))),
             "n_solves": n_eval[0], "time_s": time.perf_counter() - t0, "grid": f"{n}x{n}"}
+
+
+def rbf_interpolate(sensor_xy: np.ndarray, T_obs: np.ndarray, grid, smoothing: float = 0.0):
+    """Physics-free baseline: thin-plate-spline interpolation of the sensor readings onto the grid
+    (what you would do with a spreadsheet of sensor values). Returns T (ny, nx) in °C."""
+    from scipy.interpolate import RBFInterpolator
+    X, Y = grid.mesh()
+    rbf = RBFInterpolator(sensor_xy * 1e3, T_obs, kernel="thin_plate_spline", smoothing=smoothing)
+    pts = np.column_stack([X.ravel() * 1e3, Y.ravel() * 1e3])
+    return rbf(pts).reshape(X.shape)

@@ -75,13 +75,15 @@ class ChipProblem:
     def q_ref(self) -> np.ndarray:
         return self.fv_prob.q                                  # W/m³, (ny, nx)
 
-    def sensors(self, n=None, noise_rel=None, kind=None, seed=None) -> dict:
-        """Synthetic sensors (positions in m, readings in °C) from the FV solution."""
+    def sensors(self, n=None, noise_rel=None, kind=None, seed=None, xy=None) -> dict:
+        """Synthetic sensors (positions in m, readings in °C) from the FV solution.
+        Pass `xy` (m) to use precomputed positions (e.g. QR-optimised placement)."""
         sc = self.cfg.sensors
         n = int(n if n is not None else sc.n)
         seed = int(seed if seed is not None else self.cfg.seed)
         g = self.fv_prob.grid
-        xy = placement(n, g.Lx, g.Ly, kind or sc.placement, seed=seed)
+        if xy is None:
+            xy = placement(n, g.Lx, g.Ly, kind or sc.placement, seed=seed)
         return read_sensors(self.fv_sol, xy, float(noise_rel if noise_rel is not None
                                                    else sc.noise_rel),
                             float(self.cfg.physics.T_amb), seed=seed)
@@ -99,4 +101,16 @@ def field_metrics(T_pred: np.ndarray, T_ref: np.ndarray, T_amb: float, grid) -> 
         "mean_abs_err_C": float(np.abs(e).mean()),
         "peak_T_err_C": float(T_pred.max() - T_ref.max()),
         "hotspot_loc_err_mm": float(np.hypot(grid.x[ip] - grid.x[ir], grid.y[jp] - grid.y[jr]) / MM),
+    }
+
+
+def q_field_metrics(q_pred: np.ndarray, q_ref: np.ndarray, grid) -> dict:
+    """Power-map reconstruction quality: relative L2, location of the power peak, total power."""
+    jr, ir = np.unravel_index(np.argmax(q_ref), q_ref.shape)
+    jp, ip = np.unravel_index(np.argmax(q_pred), q_pred.shape)
+    return {
+        "q_rel_L2": float(np.linalg.norm(q_pred - q_ref) / np.linalg.norm(q_ref)),
+        "q_peak_loc_err_mm": float(np.hypot(grid.x[ip] - grid.x[ir], grid.y[jp] - grid.y[jr]) / MM),
+        "q_total_rel_err": float(q_pred.sum() / q_ref.sum() - 1.0),
+        "q_peak_ratio": float(q_pred.max() / q_ref.max()),
     }
