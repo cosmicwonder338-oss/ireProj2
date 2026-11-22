@@ -1,0 +1,4 @@
+# Stage 2: solver + autograd verification.
+name: stage2_verify
+stage2:
+  ns: [16, 32, 64, 128, 256]

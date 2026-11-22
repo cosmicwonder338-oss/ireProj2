@@ -1,0 +1,6 @@
+# Stage 0: environment / infrastructure smoke test.
+name: stage0_smoke
+seed: 42
+training:
+  adam_iters: 50
+  ckpt_every: 25

@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+# checkpoints are large and regenerable; figures/metrics/configs are kept
+results/**/*.pt
+results/**/*.pt.tmp

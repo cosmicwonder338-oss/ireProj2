@@ -1,0 +1,10 @@
+# Stage 1: finite-volume reference solutions for the three top-view layouts, both cooling models,
+# plus synthetic sensors.
+name: stage1_reference
+stage1:
+  layouts: [quad_core, cpu_gpu, random_hotspots]
+  coolings: [edge, backside]
+sensors:
+  n: 15
+  noise_rel: 0.01
+  placement: random

@@ -1,0 +1,43 @@
+name: stage0_smoke
+seed: 42
+device: auto
+physics:
+  T_amb: 40.0
+  h: 10000.0
+  materials:
+    silicon: 150.0
+    copper: 400.0
+    tim: 3.0
+    void: 0.03
+  boundary:
+    bottom: convective
+    top: insulated
+    left: insulated
+    right: insulated
+geometry:
+  Lx: 0.01
+  Ly: 0.01
+scales:
+  L: 0.01
+  k_ref: 150.0
+  dT: 50.0
+solver:
+  nx: 201
+  ny: 201
+sensors:
+  n: 15
+  noise_rel: 0.01
+  placement: random
+model:
+  hidden: 64
+  layers: 4
+  activation: tanh
+training:
+  adam_iters: 50
+  adam_lr: 0.001
+  lbfgs_iters: 500
+  n_collocation: 4096
+  n_boundary: 512
+  log_every: 100
+  ckpt_every: 25
+  time_budget_min: 15.0
