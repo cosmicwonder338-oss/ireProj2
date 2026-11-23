@@ -1,0 +1,174 @@
+[{"stream_name":"stderr","time":8.588558643,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":8.588625035,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":8.588631139,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":8.588633912,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stderr","time":9.358002047,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":9.358038212,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":9.358043804,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":9.358048092,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stdout","time":21.251211873,"data":"torch 2.11.0+cpu | numpy 2.1.3 | pandas 2.3.3\n"}
+,{"stream_name":"stdout","time":21.27222239,"data":"▶ 1a. GPU check ...\n"}
+,{"stream_name":"stdout","time":21.272257548,"data":"WARNING: CUDA not available, running on CPU.\n"}
+,{"stream_name":"stdout","time":21.272262485,"data":"⏱ 1a. GPU check: 0.0s  (elapsed total 0.0 min)\n"}
+,{"stream_name":"stdout","time":21.451731072,"data":"▶ 1b. Load data ...\n"}
+,{"stream_name":"stdout","time":21.4517729,"data":"movies.csv   -\u003e /kaggle/input/datasets/shubhammehta21/movie-lens-small-latest-dataset/movies.csv\n"}
+,{"stream_name":"stdout","time":21.451804321,"data":"ratings.csv  -\u003e /kaggle/input/datasets/shubhammehta21/movie-lens-small-latest-dataset/ratings.csv\n"}
+,{"stream_name":"stdout","time":21.451810558,"data":"tags.csv     -\u003e /kaggle/input/datasets/shubhammehta21/movie-lens-small-latest-dataset/tags.csv\n"}
+,{"stream_name":"stdout","time":21.933864833,"data":"⏱ 1b. Load data: 0.6s  (elapsed total 0.0 min)\n"}
+,{"stream_name":"stdout","time":21.93390539,"data":"\n"}
+,{"stream_name":"stdout","time":21.933910319,"data":"movies: shape=(9742, 3)\n"}
+,{"stream_name":"stdout","time":21.940570334,"data":"\n"}
+,{"stream_name":"stdout","time":21.940602724,"data":"ratings: shape=(100836, 4)\n"}
+,{"stream_name":"stdout","time":21.945507823,"data":"\n"}
+,{"stream_name":"stdout","time":21.945554124,"data":"tags: shape=(3683, 4)\n"}
+,{"stream_name":"stdout","time":22.01455435,"data":"610 users, 9742 movies in catalogue, 100836 ratings\n"}
+,{"stream_name":"stdout","time":22.114953249,"data":"▶ 2. EDA ...\n"}
+,{"stream_name":"stdout","time":22.115004489,"data":"Sparsity: 98.30% of the 610x9742 matrix is empty\n"}
+,{"stream_name":"stdout","time":22.115010129,"data":"Ratings/user: min 20, median 70, max 2698\n"}
+,{"stream_name":"stdout","time":22.115014366,"data":"Ratings/movie: median 3; 35.4% of rated movies have 1 rating; top 10% of movies hold 60.0% of ratings\n"}
+,{"stream_name":"stdout","time":24.511693902,"data":"⏱ 2. EDA: 2.5s  (elapsed total 0.1 min)\n"}
+,{"stream_name":"stdout","time":24.642210844,"data":"▶ Split ...\n"}
+,{"stream_name":"stdout","time":24.642247936,"data":"train 80669, test 20167 (val 8067 carved from train); 599 users with \u003e=1 relevant test item\n"}
+,{"stream_name":"stdout","time":24.642253975,"data":"⏱ Split: 0.1s  (elapsed total 0.1 min)\n"}
+,{"stream_name":"stdout","time":24.854358203,"data":"▶ 3. Popularity ...\n"}
+,{"stream_name":"stdout","time":24.854394373,"data":"min votes m = 23, global mean C = 3.503\n"}
+,{"stream_name":"stdout","time":24.967219968,"data":"Popularity {'RMSE': 0.9849, 'MAE': 0.7687}\n"}
+,{"stream_name":"stdout","time":24.967259635,"data":"Popularity {'Precision@10': 0.0923, 'Recall@10': 0.0725, 'NDCG@10': 0.1172, 'Coverage': 0.0046}\n"}
+,{"stream_name":"stdout","time":24.967264146,"data":"⏱ 3. Popularity: 0.1s  (elapsed total 0.1 min)\n"}
+,{"stream_name":"stdout","time":25.205903971,"data":"▶ 4a. TF-IDF ...\n"}
+,{"stream_name":"stdout","time":25.205941777,"data":"TF-IDF matrix: (9742, 793), nnz=26387 (sparse, 0.1 MB)\n"}
+,{"stream_name":"stdout","time":25.205946894,"data":"⏱ 4a. TF-IDF: 0.1s  (elapsed total 0.1 min)\n"}
+,{"stream_name":"stdout","time":25.278965969,"data":"▶ 4b. Content eval ...\n"}
+,{"stream_name":"stdout","time":25.27900434,"data":"Movies similar to: Toy Story (1995)\n"}
+,{"stream_name":"stdout","time":25.280678996,"data":"Content {}\n"}
+,{"stream_name":"stdout","time":25.635715347,"data":"Content {'Precision@10': 0.0038, 'Recall@10': 0.0037, 'NDCG@10': 0.0043, 'Coverage': 0.214}\n"}
+,{"stream_name":"stdout","time":25.635752866,"data":"⏱ 4b. Content eval: 0.4s  (elapsed total 0.1 min)\n"}
+,{"stream_name":"stdout","time":26.099066641,"data":"Surprise trainset: 610 users, 8983 items, 80669 ratings\n"}
+,{"stream_name":"stdout","time":26.331353153,"data":"▶ 5a. SVD grid search ...\n"}
+,{"stream_name":"stdout","time":35.257767983,"data":"best CV RMSE 0.8710 with {'n_factors': 100, 'n_epochs': 25, 'lr_all': 0.01, 'reg_all': 0.1, 'random_state': 42}\n"}
+,{"stream_name":"stdout","time":35.257822295,"data":"⏱ 5a. SVD grid search: 8.9s  (elapsed total 0.2 min)\n"}
+,{"stream_name":"stdout","time":35.257828771,"data":"▶ 5b. SVD fit + eval ...\n"}
+,{"stream_name":"stdout","time":36.271878917,"data":"SVD {'RMSE': 0.8777, 'MAE': 0.6703}\n"}
+,{"stream_name":"stdout","time":36.271905981,"data":"⏱ 5b. SVD fit + eval: 1.0s  (elapsed total 0.2 min)\n"}
+,{"stream_name":"stdout","time":36.271911971,"data":"▶ 5c. SVD ranking eval ...\n"}
+,{"stream_name":"stdout","time":36.383537535,"data":"SVD {'Precision@10': 0.0195, 'Recall@10': 0.0162, 'NDCG@10': 0.0216, 'Coverage': 0.0207}\n"}
+,{"stream_name":"stdout","time":36.38357294,"data":"⏱ 5c. SVD ranking eval: 0.3s  (elapsed total 0.3 min)\n"}
+,{"stream_name":"stdout","time":36.4508757,"data":"User 999999 unknown (cold start): returning the popularity top-10.\n"}
+,{"stream_name":"stdout","time":36.624935482,"data":"▶ 6a. KNNBaseline fit + RMSE ...\n"}
+,{"stream_name":"stdout","time":48.833485278,"data":"Item-KNN {'RMSE': 0.8592, 'MAE': 0.6527}\n"}
+,{"stream_name":"stdout","time":48.833531348,"data":"similarity matrix (8983, 8983), 0.65 GB\n"}
+,{"stream_name":"stdout","time":48.833537935,"data":"⏱ 6a. KNNBaseline fit + RMSE: 12.1s  (elapsed total 0.5 min)\n"}
+,{"stream_name":"stdout","time":48.833544068,"data":"▶ 6b. KNN ranking eval ...\n"}
+,{"stream_name":"stdout","time":80.060333217,"data":"Item-KNN {'Precision@10': 0.0252, 'Recall@10': 0.017, 'NDCG@10': 0.0276, 'Coverage': 0.1655}\n"}
+,{"stream_name":"stdout","time":80.060371978,"data":"⏱ 6b. KNN ranking eval: 31.4s  (elapsed total 1.0 min)\n"}
+,{"stream_name":"stdout","time":80.25300963,"data":"▶ 7. Hybrid eval ...\n"}
+,{"stream_name":"stdout","time":80.253085762,"data":"Hybrid {}\n"}
+,{"stream_name":"stdout","time":81.263813655,"data":"Hybrid {'Precision@10': 0.009, 'Recall@10': 0.0075, 'NDCG@10': 0.0113, 'Coverage': 0.1222}\n"}
+,{"stream_name":"stdout","time":85.060133438,"data":"α sensitivity (NDCG@10, test set, for insight only): {0.0: np.float64(0.0032), 0.3: np.float64(0.0082), 0.5: np.float64(0.0097), 0.9: np.float64(0.0135), 1.0: np.float64(0.0131)}\n"}
+,{"stream_name":"stdout","time":85.060373706,"data":"⏱ 7. Hybrid eval: 4.9s  (elapsed total 1.1 min)\n"}
+,{"stream_name":"stdout","time":85.261394268,"data":"▶ 8a. NeuMF train ...\n"}
+,{"stream_name":"stdout","time":93.264156929,"data":"epoch  0 train RMSE 1.0031 val RMSE 0.9208\n"}
+,{"stream_name":"stdout","time":97.522023036,"data":"epoch  5 train RMSE 0.6416 val RMSE 0.8451\n"}
+,{"stream_name":"stdout","time":100.925012717,"data":"epoch  9 train RMSE 0.4363 val RMSE 0.8688\n"}
+,{"stream_name":"stdout","time":100.925078152,"data":"early stop at epoch 9, best val RMSE 0.8446\n"}
+,{"stream_name":"stdout","time":100.925085814,"data":"⏱ 8a. NeuMF train: 15.6s  (elapsed total 1.3 min)\n"}
+,{"stream_name":"stdout","time":101.246821449,"data":"▶ 8b. NeuMF eval ...\n"}
+,{"stream_name":"stdout","time":101.246859371,"data":"NeuMF {'RMSE': 0.8671, 'MAE': 0.662}\n"}
+,{"stream_name":"stdout","time":106.619551902,"data":"NeuMF {'Precision@10': 0.0109, 'Recall@10': 0.0074, 'NDCG@10': 0.0108, 'Coverage': 0.0099}\n"}
+,{"stream_name":"stdout","time":106.619594313,"data":"⏱ 8b. NeuMF eval: 5.6s  (elapsed total 1.4 min)\n"}
+,{"stream_name":"stdout","time":106.835853789,"data":"▶ 9a. Item features ...\n"}
+,{"stream_name":"stdout","time":106.934885405,"data":"item side features: torch.Size([9742, 51]) (19 genres + 32 tag dims)\n"}
+,{"stream_name":"stdout","time":106.934940177,"data":"⏱ 9a. Item features: 0.2s  (elapsed total 1.4 min)\n"}
+,{"stream_name":"stdout","time":106.934945922,"data":"▶ 9b. Two-tower train ...\n"}
+,{"stream_name":"stdout","time":125.301329087,"data":"tau=0.05: stopped at epoch 18, best val Recall@10 0.1656\n"}
+,{"stream_name":"stdout","time":147.394014933,"data":"tau=0.1: stopped at epoch 22, best val Recall@10 0.1726\n"}
+,{"stream_name":"stdout","time":177.35554251,"data":"tau=0.2: stopped at epoch 31, best val Recall@10 0.1726\n"}
+,{"stream_name":"stdout","time":177.355593343,"data":"selected tau=0.2\n"}
+,{"stream_name":"stdout","time":177.355599356,"data":"⏱ 9b. Two-tower train: 70.3s  (elapsed total 2.6 min)\n"}
+,{"stream_name":"stdout","time":177.75175662,"data":"▶ 9c. Two-tower eval ...\n"}
+,{"stream_name":"stdout","time":177.751822875,"data":"Two-tower {}\n"}
+,{"stream_name":"stdout","time":177.751831679,"data":"Two-tower {'Precision@10': 0.1771, 'Recall@10': 0.1695, 'NDCG@10': 0.2365, 'Coverage': 0.0711}\n"}
+,{"stream_name":"stdout","time":177.751843154,"data":"⏱ 9c. Two-tower eval: 0.1s  (elapsed total 2.6 min)\n"}
+,{"stream_name":"stdout","time":177.82983829,"data":"elapsed 2.6 min -\u003e running SASRec\n"}
+,{"stream_name":"stdout","time":177.82988627,"data":"▶ 10a. SASRec leave-last-out ...\n"}
+,{"stream_name":"stdout","time":200.53987435,"data":"epoch   0 loss 8.5178 val NDCG@10 0.0038\n"}
+,{"stream_name":"stdout","time":419.228087328,"data":"epoch  10 loss 7.1896 val NDCG@10 0.0289\n"}
+,{"stream_name":"stdout","time":636.477924782,"data":"epoch  20 loss 6.3690 val NDCG@10 0.0639\n"}
+,{"stream_name":"stdout","time":854.844745064,"data":"epoch  30 loss 5.8159 val NDCG@10 0.0646\n"}
+,{"stream_name":"stdout","time":1072.301750651,"data":"epoch  40 loss 5.5037 val NDCG@10 0.0630\n"}
+,{"stream_name":"stdout","time":1072.301812446,"data":"early stop at epoch 40, best epoch 26\n"}
+,{"stream_name":"stdout","time":1072.514738154,"data":"Leave-last-out  SASRec HR@10 0.1016 NDCG@10 0.0506 | Popularity HR@10 0.0393 NDCG@10 0.0176\n"}
+,{"stream_name":"stdout","time":1072.514800203,"data":"⏱ 10a. SASRec leave-last-out: 894.5s  (elapsed total 17.5 min)\n"}
+,{"stream_name":"stdout","time":1072.514810179,"data":"▶ 10b. SASRec shared test ...\n"}
+,{"stream_name":"stdout","time":1529.243557358,"data":"SASRec {'LLO_HR@10': 0.1016, 'LLO_NDCG@10': 0.0506}\n"}
+,{"stream_name":"stdout","time":1529.243623528,"data":"SASRec {'Precision@10': 0.0531, 'Recall@10': 0.0661, 'NDCG@10': 0.0729, 'Coverage': 0.1527}\n"}
+,{"stream_name":"stdout","time":1529.243630367,"data":"Popularity {'LLO_HR@10': 0.0393, 'LLO_NDCG@10': 0.0176}\n"}
+,{"stream_name":"stdout","time":1529.243634531,"data":"⏱ 10b. SASRec shared test: 456.9s  (elapsed total 25.1 min)\n"}
+,{"stream_name":"stdout","time":1529.527118581,"data":"===== RESULTS (sorted by NDCG@10) =====\n"}
+,{"stream_name":"stdout","time":1529.527164848,"data":"              RMSE     MAE  Precision@10  Recall@10  NDCG@10  Coverage  LLO_HR@10  LLO_NDCG@10\n"}
+,{"stream_name":"stdout","time":1529.527171287,"data":"model                                                                                         \n"}
+,{"stream_name":"stdout","time":1529.527175323,"data":"Two-tower      NaN     NaN        0.1771     0.1695   0.2365    0.0711        NaN          NaN\n"}
+,{"stream_name":"stdout","time":1529.527179768,"data":"Popularity  0.9849  0.7687        0.0923     0.0725   0.1172    0.0046     0.0393       0.0176\n"}
+,{"stream_name":"stdout","time":1529.527183734,"data":"SASRec         NaN     NaN        0.0531     0.0661   0.0729    0.1527     0.1016       0.0506\n"}
+,{"stream_name":"stdout","time":1529.527187708,"data":"Item-KNN    0.8592  0.6527        0.0252     0.0170   0.0276    0.1655        NaN          NaN\n"}
+,{"stream_name":"stdout","time":1529.527191729,"data":"SVD         0.8777  0.6703        0.0195     0.0162   0.0216    0.0207        NaN          NaN\n"}
+,{"stream_name":"stdout","time":1529.527195226,"data":"Hybrid         NaN     NaN        0.0090     0.0075   0.0113    0.1222        NaN          NaN\n"}
+,{"stream_name":"stdout","time":1529.527199424,"data":"NeuMF       0.8671  0.6620        0.0109     0.0074   0.0108    0.0099        NaN          NaN\n"}
+,{"stream_name":"stdout","time":1529.527203562,"data":"Content        NaN     NaN        0.0038     0.0037   0.0043    0.2140        NaN          NaN\n"}
+,{"stream_name":"stdout","time":1530.077553977,"data":"▶ 12. Demo ...\n"}
+,{"stream_name":"stdout","time":1530.077624384,"data":"Demo user 86 (55 training ratings). Top-rated movies:\n"}
+,{"stream_name":"stdout","time":1530.219044534,"data":"\n"}
+,{"stream_name":"stdout","time":1530.219080167,"data":"Top 10 per model:\n"}
+,{"stream_name":"stdout","time":1530.243298346,"data":"\n"}
+,{"stream_name":"stdout","time":1530.243375869,"data":"Hybrid with explanations:\n"}
+,{"stream_name":"stdout","time":1530.322223183,"data":"Movies similar to: Matrix, The (1999)\n"}
+,{"stream_name":"stdout","time":1530.374818342,"data":"Movies similar to: Godfather, The (1972)\n"}
+,{"stream_name":"stdout","time":1530.415828422,"data":"Movies similar to: Pulp Fiction (1994)\n"}
+,{"stream_name":"stdout","time":1530.468665889,"data":"\n"}
+,{"stream_name":"stdout","time":1530.46872861,"data":"Edge cases:\n"}
+,{"stream_name":"stdout","time":1530.509298125,"data":"Movie 'asdkjhqwe zzz' not found. Try another spelling.\n"}
+,{"stream_name":"stdout","time":1530.509347354,"data":"(0, 3)\n"}
+,{"stream_name":"stdout","time":1530.509354763,"data":"User 1000000000 unknown (cold start): returning the popularity top-5.\n"}
+,{"stream_name":"stdout","time":1530.530925399,"data":"⏱ 12. Demo: 0.5s  (elapsed total 25.2 min)\n"}
+,{"stream_name":"stdout","time":1530.626957168,"data":"Best ranking model (NDCG@10): Two-tower  (0.2365)\n"}
+,{"stream_name":"stdout","time":1530.626998606,"data":"Best rating predictor (RMSE): Item-KNN  (0.8592)\n"}
+,{"stream_name":"stdout","time":1530.627003723,"data":"Highest catalogue coverage: Content (0.214)\n"}
+,{"stream_name":"stdout","time":1530.627025485,"data":"\n"}
+,{"stream_name":"stdout","time":1530.627029269,"data":"Section timings:\n"}
+,{"stream_name":"stdout","time":1530.62703324,"data":"  1a. GPU check                        0.0s\n"}
+,{"stream_name":"stdout","time":1530.627037193,"data":"  1b. Load data                        0.6s\n"}
+,{"stream_name":"stdout","time":1530.627040909,"data":"  2. EDA                               2.5s\n"}
+,{"stream_name":"stdout","time":1530.627044591,"data":"  Split                                0.1s\n"}
+,{"stream_name":"stdout","time":1530.627048325,"data":"  3. Popularity                        0.1s\n"}
+,{"stream_name":"stdout","time":1530.627052208,"data":"  4a. TF-IDF                           0.1s\n"}
+,{"stream_name":"stdout","time":1530.627055926,"data":"  4b. Content eval                     0.4s\n"}
+,{"stream_name":"stdout","time":1530.62705961,"data":"  5a. SVD grid search                  8.9s\n"}
+,{"stream_name":"stdout","time":1530.627063353,"data":"  5b. SVD fit + eval                   1.0s\n"}
+,{"stream_name":"stdout","time":1530.627067283,"data":"  5c. SVD ranking eval                 0.3s\n"}
+,{"stream_name":"stdout","time":1530.627078476,"data":"  6a. KNNBaseline fit + RMSE          12.1s\n"}
+,{"stream_name":"stdout","time":1530.627082207,"data":"  6b. KNN ranking eval                31.4s\n"}
+,{"stream_name":"stdout","time":1530.627085981,"data":"  7. Hybrid eval                       4.9s\n"}
+,{"stream_name":"stdout","time":1530.62708967,"data":"  8a. NeuMF train                     15.6s\n"}
+,{"stream_name":"stdout","time":1530.627093421,"data":"  8b. NeuMF eval                       5.6s\n"}
+,{"stream_name":"stdout","time":1530.627097122,"data":"  9a. Item features                    0.2s\n"}
+,{"stream_name":"stdout","time":1530.627101017,"data":"  9b. Two-tower train                 70.3s\n"}
+,{"stream_name":"stdout","time":1530.627104742,"data":"  9c. Two-tower eval                   0.1s\n"}
+,{"stream_name":"stdout","time":1530.6271085180001,"data":"  10a. SASRec leave-last-out         894.5s\n"}
+,{"stream_name":"stdout","time":1530.627112235,"data":"  10b. SASRec shared test            456.9s\n"}
+,{"stream_name":"stdout","time":1530.62711595,"data":"  12. Demo                             0.5s\n"}
+,{"stream_name":"stdout","time":1530.627119691,"data":"TOTAL RUNTIME: 25.2 min\n"}
+,{"stream_name":"stdout","time":1530.627123439,"data":"Output files: ['eda.png', 'model_comparison.png', 'neumf_loss.png', 'results.csv', 'two_tower_loss.png']\n"}
+,{"stream_name":"stderr","time":1536.636439048,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":1536.636493551,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":1536.831287528,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":1536.831332636,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":1537.737333202,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\n"}
+,{"stream_name":"stderr","time":1537.880684013,"data":"[NbConvertApp] Writing 507644 bytes to __notebook__.ipynb\n"}
+,{"stream_name":"stderr","time":1541.147210738,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to html\n"}
+,{"stream_name":"stderr","time":1542.157073044,"data":"[NbConvertApp] Support files will be in __results___files/\n"}
+,{"stream_name":"stderr","time":1542.157122576,"data":"[NbConvertApp] Making directory __results___files\n"}
+,{"stream_name":"stderr","time":1542.157950036,"data":"[NbConvertApp] Making directory __results___files\n"}
+,{"stream_name":"stderr","time":1542.158142049,"data":"[NbConvertApp] Making directory __results___files\n"}
+,{"stream_name":"stderr","time":1542.158655852,"data":"[NbConvertApp] Making directory __results___files\n"}
+,{"stream_name":"stderr","time":1542.159225466,"data":"[NbConvertApp] Writing 612483 bytes to __results__.html\n"}
+]
